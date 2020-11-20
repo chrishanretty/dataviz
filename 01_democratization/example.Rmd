@@ -1,0 +1,238 @@
+---
+title: "Scatterplots"
+author: "Chris Hanretty"
+date: "November 2020"
+output:
+  xaringan::moon_reader:
+    css: ["default", "rhul.css", "rhul-fonts.css","https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css"]
+    nature:
+          highlightLines: true
+---
+
+
+```{r knitropts, echo = FALSE, message = FALSE}
+
+knitr::opts_chunk$set(dpi=300,fig.width=4.5, fig.height = 4, warning = TRUE, message = TRUE, out.width = "100%")
+
+```
+
+# About scatterplots
+
+ - One of the most common data visualizations in the social sciences
+ - Plot one continuous variable against another continuous variable
+ - By convention, we put the thing we're explaining on the vertical axis
+ - The thing we use to explain goes on the horizontal axis
+ - Everything else is fair game
+ 
+---
+
+# About this session
+
+ - This session will show you how to construct a scatterplot using `ggplot`
+ - It assumes some prior knowledge of how R works
+ - It is not a complete guide to ggplot
+ - Useful resources include:
+    * Chapter 3 of ["R for Data Science"](https://r4ds.had.co.nz/data-visualisation.html)
+	* The [ggplot2 manual](https://ggplot2.tidyverse.org/)
+	* Kieran Healy's [Data Visualization](https://socviz.co/)
+
+---
+
+# Load the libraries
+
+```{r loadlibs}
+library(tidyverse)
+```
+
+The `tidyverse` is a container package which includes `ggplot2`.
+
+```{r loadlibs2, echo = FALSE}
+library(flipbookr)
+```
+
+---
+
+# Get the data in
+
+```{r datin}
+dat <- read.csv("gdp_dem_data.csv")
+```
+
+---
+
+# Look at the data
+
+
+```{r datlook}
+head(dat, 5)
+```
+
+```{r figcode, eval = FALSE, echo = FALSE}
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + 
+    theme_bw()
+```
+
+---
+
+`r chunk_reveal(chunk_name = "figcode", break_type = "auto")`
+
+---
+
+# All the code
+
+```{r figcode, eval = FALSE}
+```
+
+---
+
+# How I'd usually write it
+
+```{r figcode2, eval = FALSE}
+ggplot(dat, aes(x = gdp_pc_1992, y = v2x_libdem)) +
+    geom_point() +
+    scale_x_log10("GDP per capita in 1992, US$",
+                  breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    scale_y_continuous("V-Dem measure of liberal democracy")
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now", 
+         caption = "Source: V-Dem, Penn World Tables") + 
+    theme_bw()
+```
+
+---
+
+# Further options
+
+1. Adding a trend line
+2. Mapping an additional aesthetic
+3. Small multiples
+
+---
+
+# Adding a trend line
+
+```{r trendline, eval = FALSE}
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK
+    geom_smooth(method = "lm") + 
+    theme_bw()
+```
+
+---
+
+`r chunk_reveal(chunk_name = "trendline", break_type = "auto")`
+
+
+---
+
+# Mapping an additional aesthetic (colour)
+
+
+```{r addaes, eval = FALSE}
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) + #BREAK
+    aes(colour = e_regiongeo) + #BREAK2
+    geom_point() + #BREAK3
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK4
+    scale_colour_discrete("Region") + 
+    theme_bw() + #BREAK5
+    theme(legend.position = "bottom") 
+```
+
+---
+
+`r chunk_reveal(chunk_name = "addaes", break_type = "auto")`
+
+---
+
+# Mapping an additional aesthetic (size)
+
+
+```{r addaes2, echo = FALSE, eval = FALSE}
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) + #BREAK
+    aes(size = pop) + #BREAK2
+    geom_point(alpha = 0.5) + #BREAK3
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK4
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) + 
+    theme_bw() + #BREAK5
+    theme(legend.position = "bottom") 
+```
+
+---
+
+`r chunk_reveal(chunk_name = "addaes2", break_type = "auto")`
+
+---
+
+# Small multiples
+
+
+```{r smallmults, eval = FALSE}
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) + #BREAK
+    aes(size = pop) + #BREAK2
+    geom_point(alpha = 0.5) + #BREAK3
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK4
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+    facet_wrap(~e_regiongeo) +
+    geom_smooth(method = "lm", se = FALSE) + 
+    theme_bw() + #BREAK5
+    theme(legend.position = "bottom") 
+```
+
+---
+
+`r chunk_reveal(chunk_name = "smallmults", break_type = "auto")`
+
+---
+
+# Next steps
+
+ - If you have data which could be presented using a scatter-plot, experiment
+ - Pay attention to labelling and captions
+ - Think about mapping additional aesthetics. Is it worth it? Does it become too busy?
+ 

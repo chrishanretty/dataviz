@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Scatterplots</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Chris Hanretty" />
+    <link href="example_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="example_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+    <script src="example_files/anchor-sections-1.0/anchor-sections.js"></script>
+    <link rel="stylesheet" href="rhul.css" type="text/css" />
+    <link rel="stylesheet" href="rhul-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Scatterplots
+### Chris Hanretty
+### November 2020
+
+---
+
+
+
+
+
+# About scatterplots
+
+ - One of the most common data visualizations in the social sciences
+ - Plot one continuous variable against another continuous variable
+ - By convention, we put the thing we're explaining on the vertical axis
+ - The thing we use to explain goes on the horizontal axis
+ - Everything else is fair game
+ 
+---
+
+# About this session
+
+ - This session will show you how to construct a scatterplot using `ggplot`
+ - It assumes some prior knowledge of how R works
+ - It is not a complete guide to ggplot
+ - Useful resources include:
+    * Chapter 3 of ["R for Data Science"](https://r4ds.had.co.nz/data-visualisation.html)
+	* The [ggplot2 manual](https://ggplot2.tidyverse.org/)
+	* Kieran Healy's [Data Visualization](https://socviz.co/)
+
+---
+
+# Load the libraries
+
+
+```r
+library(tidyverse)
+```
+
+
+
+---
+
+# Get the data in
+
+
+```r
+dat &lt;- read.csv("gdp_dem_data.csv")
+```
+
+---
+
+# Look at the data
+
+
+
+```r
+head(dat, 5)
+```
+
+```
+##   isocode              country gdp_pc_1992 gdp_pc_2017         country_name
+## 1     ABW                Aruba   42728.293   37395.987                 &lt;NA&gt;
+## 2     AGO               Angola    2702.662    5004.589               Angola
+## 3     AIA             Anguilla   20921.221   23012.405                 &lt;NA&gt;
+## 4     ALB              Albania    2177.378   11628.868              Albania
+## 5     ARE United Arab Emirates   97245.689   65587.395 United Arab Emirates
+##   year e_regiongeo v2x_libdem       pop
+## 1   NA        &lt;NA&gt;         NA        NA
+## 2 2019      Africa      0.230 10377.000
+## 3   NA        &lt;NA&gt;         NA        NA
+## 4 2019      Europe      0.431  3473.835
+## 5 2019        Asia      0.091  3219.000
+```
+
+
+
+---
+
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+*ggplot(dat)
+```
+]
+ 
+.panel2-figcode-auto[
+&lt;img src="example_files/figure-html/figcode_auto_01_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+*   aes(x = gdp_pc_1992)
+```
+]
+ 
+.panel2-figcode-auto[
+&lt;img src="example_files/figure-html/figcode_auto_02_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+*   aes(y = v2x_libdem)
+```
+]
+ 
+.panel2-figcode-auto[
+&lt;img src="example_files/figure-html/figcode_auto_03_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+*   geom_point()
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_04_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+*   xlab("GDP per capita in 1992, US$")
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_05_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+*   ylab("V-Dem measure of liberal democracy")
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_06_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+*   scale_x_log10(breaks = c(400, 1000,
+*                            4000, 10000,
+*                            40000))
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_07_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+*   labs(title = "Countries richer in 1992 have\nhigher levels of democracy now")
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_08_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+*   labs(caption = "Source: V-Dem, Penn World Tables")
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_09_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-figcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+*   theme_bw()
+```
+]
+ 
+.panel2-figcode-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/figcode_auto_10_output-1.png" width="100%" /&gt;
+]
+
+&lt;style&gt;
+.panel1-figcode-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-figcode-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-figcode-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+---
+
+# All the code
+
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + 
+    theme_bw()
+```
+
+---
+
+# How I'd usually write it
+
+
+```r
+ggplot(dat, aes(x = gdp_pc_1992, y = v2x_libdem)) +
+    geom_point() +
+    scale_x_log10("GDP per capita in 1992, US$",
+                  breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    scale_y_continuous("V-Dem measure of liberal democracy")
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now", 
+         caption = "Source: V-Dem, Penn World Tables") + 
+    theme_bw()
+```
+
+---
+
+# Further options
+
+1. Adding a trend line
+2. Mapping an additional aesthetic
+3. Small multiples
+
+---
+
+# Adding a trend line
+
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK
+    geom_smooth(method = "lm") + 
+    theme_bw()
+```
+
+---
+
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+*ggplot(dat)
+```
+]
+ 
+.panel2-trendline-auto[
+&lt;img src="example_files/figure-html/trendline_auto_01_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+*   aes(x = gdp_pc_1992)
+```
+]
+ 
+.panel2-trendline-auto[
+&lt;img src="example_files/figure-html/trendline_auto_02_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+*   aes(y = v2x_libdem)
+```
+]
+ 
+.panel2-trendline-auto[
+&lt;img src="example_files/figure-html/trendline_auto_03_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+*   geom_point()
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_04_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+*   xlab("GDP per capita in 1992, US$")
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_05_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+*   ylab("V-Dem measure of liberal democracy")
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_06_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+*   scale_x_log10(breaks = c(400, 1000,
+*                            4000, 10000,
+*                            40000))
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_07_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+*   labs(title = "Countries richer in 1992 have\nhigher levels of democracy now")
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_08_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+*   labs(caption = "Source: V-Dem, Penn World Tables")
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_09_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+*   geom_smooth(method = "lm")
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+```
+## Warning: Removed 55 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_10_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-trendline-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    geom_smooth(method = "lm") +
+*   theme_bw()
+```
+]
+ 
+.panel2-trendline-auto[
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+```
+## Warning: Removed 55 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/trendline_auto_11_output-1.png" width="100%" /&gt;
+]
+
+&lt;style&gt;
+.panel1-trendline-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-trendline-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-trendline-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+---
+
+# Mapping an additional aesthetic (colour)
+
+
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) + #BREAK
+    aes(colour = e_regiongeo) + #BREAK2
+    geom_point() + #BREAK3
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK4
+    scale_colour_discrete("Region") + 
+    theme_bw() + #BREAK5
+    theme(legend.position = "bottom") 
+```
+
+---
+
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+*ggplot(dat)
+```
+]
+ 
+.panel2-addaes-auto[
+&lt;img src="example_files/figure-html/addaes_auto_01_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+*   aes(x = gdp_pc_1992)
+```
+]
+ 
+.panel2-addaes-auto[
+&lt;img src="example_files/figure-html/addaes_auto_02_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+*   aes(y = v2x_libdem)
+```
+]
+ 
+.panel2-addaes-auto[
+&lt;img src="example_files/figure-html/addaes_auto_03_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+*   aes(colour = e_regiongeo)
+```
+]
+ 
+.panel2-addaes-auto[
+&lt;img src="example_files/figure-html/addaes_auto_04_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+*   geom_point()
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_05_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+*   xlab("GDP per capita in 1992, US$")
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_06_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+*   ylab("V-Dem measure of liberal democracy")
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_07_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+*   scale_x_log10(breaks = c(400, 1000,
+*                            4000, 10000,
+*                            40000))
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_08_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+*   labs(title = "Countries richer in 1992 have\nhigher levels of democracy now")
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_09_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+*   labs(caption = "Source: V-Dem, Penn World Tables")
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_10_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+*   scale_colour_discrete("Region")
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_11_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+*   theme_bw()
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_12_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(colour = e_regiongeo) +
+    geom_point() +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    theme_bw() +
+*   theme(legend.position = "bottom")
+```
+]
+ 
+.panel2-addaes-auto[
+
+```
+## Warning: Removed 55 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes_auto_13_output-1.png" width="100%" /&gt;
+]
+
+&lt;style&gt;
+.panel1-addaes-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-addaes-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-addaes-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+---
+
+# Mapping an additional aesthetic (size)
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+*ggplot(dat)
+```
+]
+ 
+.panel2-addaes2-auto[
+&lt;img src="example_files/figure-html/addaes2_auto_01_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+*   aes(x = gdp_pc_1992)
+```
+]
+ 
+.panel2-addaes2-auto[
+&lt;img src="example_files/figure-html/addaes2_auto_02_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+*   aes(y = v2x_libdem)
+```
+]
+ 
+.panel2-addaes2-auto[
+&lt;img src="example_files/figure-html/addaes2_auto_03_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+*   aes(size = pop)
+```
+]
+ 
+.panel2-addaes2-auto[
+&lt;img src="example_files/figure-html/addaes2_auto_04_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+*   geom_point(alpha = 0.5)
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_05_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+*   xlab("GDP per capita in 1992, US$")
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_06_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+*   ylab("V-Dem measure of liberal democracy")
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_07_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+*   scale_x_log10(breaks = c(400, 1000,
+*                            4000, 10000,
+*                            40000))
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_08_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+*   labs(title = "Countries richer in 1992 have\nhigher levels of democracy now")
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_09_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+*   labs(caption = "Source: V-Dem, Penn World Tables")
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_10_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+*   scale_colour_discrete("Region")
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_11_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+*   scale_size_continuous(guide = FALSE)
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_12_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+*   theme_bw()
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_13_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-addaes2-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400, 1000,
+                             4000, 10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+    theme_bw() +
+*   theme(legend.position = "bottom")
+```
+]
+ 
+.panel2-addaes2-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/addaes2_auto_14_output-1.png" width="100%" /&gt;
+]
+
+&lt;style&gt;
+.panel1-addaes2-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-addaes2-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-addaes2-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+---
+
+# Small multiples
+
+
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) + #BREAK
+    aes(size = pop) + #BREAK2
+    geom_point(alpha = 0.5) + #BREAK3
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") + #BREAK4
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+    facet_wrap(~e_regiongeo) +
+    geom_smooth(method = "lm", se = FALSE) + 
+    theme_bw() + #BREAK5
+    theme(legend.position = "bottom") 
+```
+
+---
+
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+*ggplot(dat)
+```
+]
+ 
+.panel2-smallmults-auto[
+&lt;img src="example_files/figure-html/smallmults_auto_01_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+*   aes(x = gdp_pc_1992)
+```
+]
+ 
+.panel2-smallmults-auto[
+&lt;img src="example_files/figure-html/smallmults_auto_02_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+*   aes(y = v2x_libdem)
+```
+]
+ 
+.panel2-smallmults-auto[
+&lt;img src="example_files/figure-html/smallmults_auto_03_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+*   aes(size = pop)
+```
+]
+ 
+.panel2-smallmults-auto[
+&lt;img src="example_files/figure-html/smallmults_auto_04_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+*   geom_point(alpha = 0.5)
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_05_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+*   xlab("GDP per capita in 1992, US$")
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_06_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+*   ylab("V-Dem measure of liberal democracy")
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_07_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+*   scale_x_log10(breaks = c(400,
+*                            10000,
+*                            40000))
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_08_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+*   labs(title = "Countries richer in 1992 have\nhigher levels of democracy now")
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_09_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+*   labs(caption = "Source: V-Dem, Penn World Tables")
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_10_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+*   scale_colour_discrete("Region")
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_11_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+*   scale_size_continuous(guide = FALSE)
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_12_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+*   facet_wrap(~e_regiongeo)
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_13_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+    facet_wrap(~e_regiongeo) +
+*   geom_smooth(method = "lm", se = FALSE)
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+```
+## Warning: Removed 55 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_14_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+    facet_wrap(~e_regiongeo) +
+    geom_smooth(method = "lm", se = FALSE) +
+*   theme_bw()
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+```
+## Warning: Removed 55 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_15_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-smallmults-auto[
+
+```r
+ggplot(dat) +
+    aes(x = gdp_pc_1992) +
+    aes(y = v2x_libdem) +
+    aes(size = pop) +
+    geom_point(alpha = 0.5) +
+    xlab("GDP per capita in 1992, US$") +
+    ylab("V-Dem measure of liberal democracy") +
+    scale_x_log10(breaks = c(400,
+                             10000,
+                             40000)) +
+    labs(title = "Countries richer in 1992 have\nhigher levels of democracy now") +
+    labs(caption = "Source: V-Dem, Penn World Tables") +
+    scale_colour_discrete("Region") +
+    scale_size_continuous(guide = FALSE) +
+    facet_wrap(~e_regiongeo) +
+    geom_smooth(method = "lm", se = FALSE) +
+    theme_bw() +
+*   theme(legend.position = "bottom")
+```
+]
+ 
+.panel2-smallmults-auto[
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+```
+## Warning: Removed 55 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 61 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/smallmults_auto_16_output-1.png" width="100%" /&gt;
+]
+
+&lt;style&gt;
+.panel1-smallmults-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-smallmults-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-smallmults-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+---
+
+# Next steps
+
+ - If you have data which could be presented using a scatter-plot, experiment
+ - Pay attention to labelling and captions
+ - Think about mapping additional aesthetics. Is it worth it? Does it become too busy?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
