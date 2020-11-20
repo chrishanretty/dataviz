@@ -58,6 +58,8 @@ library(flipbookr)
 dat <- read.csv("gdp_dem_data.csv")
 ```
 
+Download from `https://raw.githubusercontent.com/chrishanretty/dataviz/main/01_democratization/gdp_dem_data.csv`.
+
 ---
 
 # Look at the data
