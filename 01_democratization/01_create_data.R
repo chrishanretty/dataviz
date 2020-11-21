@@ -28,7 +28,7 @@ if (FALSE) {
 ### Get the GDP data
 data("pwt9.1")
 
-###
+### 
 gdp_data <- pwt9.1 %>%
     select(country, isocode, year,
            rgdpe, pop) %>%
