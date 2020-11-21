@@ -64,7 +64,7 @@ I'll show you how to plot a bar-chart using a *tidy* version of the data.
 
 Then I'll show you how I tidied the data. 
 
-If you want the tidied data, download from [http://www.foo.org/](http://www.foo.org/)
+If you want the tidied data, download from [https://raw.githubusercontent.com/chrishanretty/dataviz/main/02_candidacy/2019_party_gender_count.csv](https://raw.githubusercontent.com/chrishanretty/dataviz/main/02_candidacy/2019_party_gender_count.csv)
 
 ---
 
