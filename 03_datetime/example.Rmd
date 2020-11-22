@@ -1,0 +1,191 @@
+---
+title: "Visualizations over time"
+author: "Chris Hanretty"
+date: "November 2020"
+output:
+  xaringan::moon_reader:
+    css: ["default", "rhul.css", "rhul-fonts.css","https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css"]
+    nature:
+          highlightLines: true
+---
+
+
+```{r knitropts, echo = FALSE, message = FALSE}
+
+knitr::opts_chunk$set(dpi=300,fig.width=4.5, fig.height = 4, warning = TRUE, message = TRUE, out.width = "100%")
+
+```
+
+# Time and visualization
+
+ - Often, we want to narrate how a quantity has evolved **over time**
+ - The classic example of this is support for a particular policy
+ - When time is a year, it can be treated as a number;
+ - When we have more detailed measures (days and months), it's more complicated
+ 
+---
+
+# About this session
+
+ - This session will show you how to:
+    * get R to understand date objects
+	* Separate out columns
+	* plot using `geom_line()`
+ - You'll encounter the tidyverse functions `separate()`
+ - You'll learn about `as.Date()` and `as.numeric()`
+ - Useful resources include:
+    * Chapter 3 of ["R for Data Science"](https://r4ds.had.co.nz/data-visualisation.html)
+	* The [ggplot2 manual](https://ggplot2.tidyverse.org/)
+	* Kieran Healy's [Data Visualization](https://socviz.co/)
+
+---
+
+# Load the libraries
+
+```{r loadlibs}
+library(tidyverse)
+```
+
+First line of code in most of your projects.
+
+```{r loadlibs2, echo = FALSE}
+library(flipbookr)
+```
+
+---
+
+# Get the data in
+
+The data we're using comes from the Wikipedia page, [Opinion polling on Scottish independence](https://en.wikipedia.org/wiki/Opinion_polling_on_Scottish_independence#Post-referendum_polling)
+
+I've got a CSV file where I've removed some rows which refer to
+specific events, but otherwise the data is as you would see it on the
+website.
+
+If you want the tidied data, download from [https://raw.githubusercontent.com/chrishanretty/dataviz/main/02_candidacy/2019_party_gender_count.csv](https://raw.githubusercontent.com/chrishanretty/dataviz/main/02_candidacy/2019_party_gender_count.csv)
+
+---
+
+# What the data looks like
+
+```{r datin}
+dat <- read.csv("indy_polling.csv")
+head(dat, 10)
+```
+
+---
+
+# Problems with the data
+
+1. The fieldwork gives a range of dates, not individual dates
+2. The values in `Yes` and `No` are percentages, not numbers
+
+We can fix these problems!
+
+---
+
+# Separating columns
+
+```{r cleancode}
+dat <- dat %>%
+    separate(col = Fieldwork,
+             into = c("FwkStart", "FwkStop"),
+             sep = "–")
+
+head(dat)
+```
+
+Note that I had to copy and paste the "hypen" (annoyingly it's an em-dash, not a hyphen).
+
+---
+
+# Converting things to dates
+
+```{r cleandates}
+dat <- dat %>%
+    mutate(FwkStart = as.Date(FwkStart,
+                             format = "%d %b %Y"),
+           FwkStop = as.Date(FwkStop,
+                             format = "%d %b %Y")) %>%
+    mutate(Date = if_else(is.na(FwkStop),
+                         FwkStart,
+                         FwkStop))
+
+head(dat)
+```
+
+---
+
+# Formatting codes
+
+**%a**
+Abbreviated weekday name in the current locale on this platform.
+
+**%A**
+Full weekday name in the current locale. 
+
+**%b**
+Abbreviated month name in the current locale on this platform.
+
+**%B**
+Full month name in the current locale. 
+
+**%d**
+Day of the month as decimal number (01--31).
+
+**%m**
+Month as decimal number (01--12).
+
+**%y**
+Year without century (00--99). 
+
+**%Y**
+Year with century.
+
+
+See full list at [https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime) or Google `date formatting R`.
+
+---
+
+# Tidying up numbers
+
+We'll use the `sub()` function which we've used before, and the
+`as.numeric()` function, which we haven't.
+
+```{r asnumericcode}
+dat <- dat %>%
+    mutate(Yes = gsub("%", "", Yes),
+           Yes = as.numeric(Yes),
+           No = gsub("%", "", No),
+           No = as.numeric(No))
+```
+
+```{r plottingcode, echo = FALSE, eval = FALSE}
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+    geom_smooth() +
+    geom_vline(xintercept = as.Date("2016-06-23",
+                                    format = "%Y-%m-%d"),
+               colour = "darkgrey") + 
+    labs(title = "Support for independence since 2014") +
+    labs(subtitle = "Vertical line shows Brexit referendum;\nblue line shows trend") + 
+    labs(caption = "Source: Wikipedia") +
+    theme_bw()
+```
+
+---
+
+`r chunk_reveal(chunk_name = "plottingcode", break_type = "auto")`
+
+---
+
+# Next steps
+
+1. How could you `pivot` the data so that the data has one row for each combination of polling and Yes/No
+2. Are there other aesthetics you might want to map to the plotted points?

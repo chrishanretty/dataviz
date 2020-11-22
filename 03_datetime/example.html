@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualizations over time</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Chris Hanretty" />
+    <link href="example_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="example_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+    <script src="example_files/anchor-sections-1.0/anchor-sections.js"></script>
+    <link rel="stylesheet" href="rhul.css" type="text/css" />
+    <link rel="stylesheet" href="rhul-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualizations over time
+### Chris Hanretty
+### November 2020
+
+---
+
+
+
+
+
+# Time and visualization
+
+ - Often, we want to narrate how a quantity has evolved **over time**
+ - The classic example of this is support for a particular policy
+ - When time is a year, it can be treated as a number;
+ - When we have more detailed measures (days and months), it's more complicated
+ 
+---
+
+# About this session
+
+ - This session will show you how to:
+    * get R to understand date objects
+	* Separate out columns
+	* plot using `geom_line()`
+ - You'll encounter the tidyverse functions `separate()`
+ - You'll learn about `as.Date()` and `as.numeric()`
+ - Useful resources include:
+    * Chapter 3 of ["R for Data Science"](https://r4ds.had.co.nz/data-visualisation.html)
+	* The [ggplot2 manual](https://ggplot2.tidyverse.org/)
+	* Kieran Healy's [Data Visualization](https://socviz.co/)
+
+---
+
+# Load the libraries
+
+
+```r
+library(tidyverse)
+```
+
+First line of code in most of your projects.
+
+
+
+---
+
+# Get the data in
+
+The data we're using comes from the Wikipedia page, [Opinion polling on Scottish independence](https://en.wikipedia.org/wiki/Opinion_polling_on_Scottish_independence#Post-referendum_polling)
+
+I've got a CSV file where I've removed some rows which refer to
+specific events, but otherwise the data is as you would see it on the
+website.
+
+If you want the tidied data, download from [https://raw.githubusercontent.com/chrishanretty/dataviz/main/02_candidacy/2019_party_gender_count.csv](https://raw.githubusercontent.com/chrishanretty/dataviz/main/02_candidacy/2019_party_gender_count.csv)
+
+---
+
+# What the data looks like
+
+
+```r
+dat &lt;- read.csv("indy_polling.csv")
+head(dat, 10)
+```
+
+```
+##            Fieldwork                 Polling.Company Sample.size Yes  No
+## 1      5–11 Nov 2020         Panelbase/Scot Goes Pop        1020 51% 40%
+## 2      6–10 Nov 2020                          YouGov        1089 43% 42%
+## 3  28 Oct–3 Nov 2020                       Survation        1071 47% 40%
+## 4        11 Oct 2020     Survation/Progress Scotland        2093 49% 43%
+## 5       2–9 Oct 2020                  Ipsos MORI/STV        1045 55% 39%
+## 6         9 Oct 2020                  Savanta ComRes        1003 47% 42%
+## 7     17–21 Sep 2020                     JL Partners        1016 51% 40%
+## 8       2–7 Sep 2020                       Survation        1018 46% 40%
+## 9     12–18 Aug 2020 Panelbase/Business for Scotland        1011 51% 42%
+## 10     6–13 Aug 2020                  Savanta ComRes        1008 49% 42%
+##    Undecided Lead                                                      Notes
+## 1         8%  11%                                                           
+## 2        10%   1%                                                           
+## 3        13%   7%                                                           
+## 4         7%   6%                             Non-standard question[notes 1]
+## 5         6%  16%                                                           
+## 6        11%   5%                                                           
+## 7         7%  11% JL Partners is not a member of the British Polling Council
+## 8        13%   6%                                                           
+## 9         7%   9%                                                           
+## 10        9%   7%
+```
+
+---
+
+# Problems with the data
+
+1. The fieldwork gives a range of dates, not individual dates
+2. The values in `Yes` and `No` are percentages, not numbers
+
+We can fix these problems!
+
+---
+
+# Separating columns
+
+
+```r
+dat &lt;- dat %&gt;%
+    separate(col = Fieldwork,
+             into = c("FwkStart", "FwkStop"),
+             sep = "–")
+```
+
+```
+## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 4 rows [4, 6, 56,
+## 87].
+```
+
+```r
+head(dat)
+```
+
+```
+##      FwkStart     FwkStop             Polling.Company Sample.size Yes  No
+## 1           5 11 Nov 2020     Panelbase/Scot Goes Pop        1020 51% 40%
+## 2           6 10 Nov 2020                      YouGov        1089 43% 42%
+## 3      28 Oct  3 Nov 2020                   Survation        1071 47% 40%
+## 4 11 Oct 2020        &lt;NA&gt; Survation/Progress Scotland        2093 49% 43%
+## 5           2  9 Oct 2020              Ipsos MORI/STV        1045 55% 39%
+## 6  9 Oct 2020        &lt;NA&gt;              Savanta ComRes        1003 47% 42%
+##   Undecided Lead                          Notes
+## 1        8%  11%                               
+## 2       10%   1%                               
+## 3       13%   7%                               
+## 4        7%   6% Non-standard question[notes 1]
+## 5        6%  16%                               
+## 6       11%   5%
+```
+
+Note that I had to copy and paste the "hypen" (annoyingly it's an em-dash, not a hyphen).
+
+---
+
+# Converting things to dates
+
+
+```r
+dat &lt;- dat %&gt;%
+    mutate(FwkStart = as.Date(FwkStart,
+                             format = "%d %b %Y"),
+           FwkStop = as.Date(FwkStop,
+                             format = "%d %b %Y")) %&gt;%
+    mutate(Date = if_else(is.na(FwkStop),
+                         FwkStart,
+                         FwkStop))
+
+head(dat)
+```
+
+```
+##     FwkStart    FwkStop             Polling.Company Sample.size Yes  No
+## 1       &lt;NA&gt; 2020-11-11     Panelbase/Scot Goes Pop        1020 51% 40%
+## 2       &lt;NA&gt; 2020-11-10                      YouGov        1089 43% 42%
+## 3       &lt;NA&gt; 2020-11-03                   Survation        1071 47% 40%
+## 4 2020-10-11       &lt;NA&gt; Survation/Progress Scotland        2093 49% 43%
+## 5       &lt;NA&gt; 2020-10-09              Ipsos MORI/STV        1045 55% 39%
+## 6 2020-10-09       &lt;NA&gt;              Savanta ComRes        1003 47% 42%
+##   Undecided Lead                          Notes       Date
+## 1        8%  11%                                2020-11-11
+## 2       10%   1%                                2020-11-10
+## 3       13%   7%                                2020-11-03
+## 4        7%   6% Non-standard question[notes 1] 2020-10-11
+## 5        6%  16%                                2020-10-09
+## 6       11%   5%                                2020-10-09
+```
+
+---
+
+# Formatting codes
+
+**%a**
+Abbreviated weekday name in the current locale on this platform.
+
+**%A**
+Full weekday name in the current locale. 
+
+**%b**
+Abbreviated month name in the current locale on this platform.
+
+**%B**
+Full month name in the current locale. 
+
+**%d**
+Day of the month as decimal number (01--31).
+
+**%m**
+Month as decimal number (01--12).
+
+**%y**
+Year without century (00--99). 
+
+**%Y**
+Year with century.
+
+
+See full list at [https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime) or Google `date formatting R`.
+
+---
+
+# Tidying up numbers
+
+We'll use the `sub()` function which we've used before, and the
+`as.numeric()` function, which we haven't.
+
+
+```r
+dat &lt;- dat %&gt;%
+    mutate(Yes = gsub("%", "", Yes),
+           Yes = as.numeric(Yes),
+           No = gsub("%", "", No),
+           No = as.numeric(No))
+```
+
+
+
+---
+
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+*ggplot(dat)
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_01_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+*   aes(x = Date)
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_02_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+*   aes(y = Yes)
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_03_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+*   scale_x_date()
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_04_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+*   scale_y_continuous(limits = c(0, 60))
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_05_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+*   xlab("Date")
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_06_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+*   ylab("Support for independence")
+```
+]
+ 
+.panel2-plottingcode-auto[
+&lt;img src="example_files/figure-html/plottingcode_auto_07_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+*   geom_point()
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_08_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+*   geom_smooth()
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_09_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+    geom_smooth() +
+*   geom_vline(xintercept = as.Date("2016-06-23",
+*                                   format = "%Y-%m-%d"),
+*              colour = "darkgrey")
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_10_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+    geom_smooth() +
+    geom_vline(xintercept = as.Date("2016-06-23",
+                                    format = "%Y-%m-%d"),
+               colour = "darkgrey") +
+*   labs(title = "Support for independence since 2014")
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_11_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+    geom_smooth() +
+    geom_vline(xintercept = as.Date("2016-06-23",
+                                    format = "%Y-%m-%d"),
+               colour = "darkgrey") +
+    labs(title = "Support for independence since 2014") +
+*   labs(subtitle = "Vertical line shows Brexit referendum;\nblue line shows trend")
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_12_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+    geom_smooth() +
+    geom_vline(xintercept = as.Date("2016-06-23",
+                                    format = "%Y-%m-%d"),
+               colour = "darkgrey") +
+    labs(title = "Support for independence since 2014") +
+    labs(subtitle = "Vertical line shows Brexit referendum;\nblue line shows trend") +
+*   labs(caption = "Source: Wikipedia")
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_13_output-1.png" width="100%" /&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-plottingcode-auto[
+
+```r
+ggplot(dat) +
+    aes(x = Date) +
+    aes(y = Yes) +
+    scale_x_date() +
+    scale_y_continuous(limits = c(0, 60)) +
+    xlab("Date") +
+    ylab("Support for independence") +
+    geom_point() +
+    geom_smooth() +
+    geom_vline(xintercept = as.Date("2016-06-23",
+                                    format = "%Y-%m-%d"),
+               colour = "darkgrey") +
+    labs(title = "Support for independence since 2014") +
+    labs(subtitle = "Vertical line shows Brexit referendum;\nblue line shows trend") +
+    labs(caption = "Source: Wikipedia") +
+*   theme_bw()
+```
+]
+ 
+.panel2-plottingcode-auto[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 1 rows containing missing values (geom_point).
+```
+
+&lt;img src="example_files/figure-html/plottingcode_auto_14_output-1.png" width="100%" /&gt;
+]
+
+&lt;style&gt;
+.panel1-plottingcode-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-plottingcode-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-plottingcode-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+---
+
+# Next steps
+
+1. How could you `pivot` the data so that the data has one row for each combination of polling and Yes/No
+2. Are there other aesthetics you might want to map to the plotted points?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
