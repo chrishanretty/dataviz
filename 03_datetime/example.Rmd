@@ -62,7 +62,7 @@ I've got a CSV file where I've removed some rows which refer to
 specific events, but otherwise the data is as you would see it on the
 website.
 
-If you want the tidied data, download from [https://raw.githubusercontent.com/dataviz/main/02_candidacy/2019_party_gender_count.csv](https://raw.githubusercontent.com/dataviz/main/02_candidacy/2019_party_gender_count.csv)
+If you want the tidied data, download from [https://raw.githubusercontent.com/dataviz/main/03_datetime/indy_polling.csv](https://raw.githubusercontent.com/dataviz/main/03_datetime/indy_polling.csv)
 
 ---
 
