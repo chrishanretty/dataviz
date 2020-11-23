@@ -1,0 +1,8 @@
+This folder contains files for short (15 minute) tutorials on data visualization in R using ggplot2.
+
+There are four tutorials:
+
+ - Scatter-plots ([](code), [](video), [](slides))
+ - bar charts ([](code), [](video), [](slides))
+ - plots with dates ([](code), [](video), [](slides))
+ - box-plots ([](code), [](video), [](slides))
